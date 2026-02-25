@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>抽出イベントまとめ</title>
+  <title>今野さんの亡霊（抽出イベントまとめ）</title>
   <style>
     :root {
       --bg: #f4f1ea;
@@ -40,6 +40,11 @@
     h1 {
       margin: 0 0 6px;
       font-size: 24px;
+    }
+    .subhead {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 4px;
     }
     .meta {
       color: var(--muted);
@@ -140,6 +145,12 @@
       background: #fff;
       font-size: 13px;
     }
+    .btn.gcal {
+      background: #f5fbff;
+      border-color: #b7d8ee;
+      color: #0b5a8f;
+      font-weight: 700;
+    }
     .note {
       margin-top: 18px;
       padding: 12px 14px;
@@ -158,8 +169,9 @@
 <body>
   <div class="wrap">
     <header>
-      <h1>抽出イベントまとめ</h1>
-      <div class="meta">この会話で抽出したイベント情報を1枚に整理（作成日: 2026-02-25）</div>
+      <h1>今野さんの亡霊</h1>
+      <div class="subhead">（抽出イベントまとめ）</div>
+      <div class="meta">作成日 : 2026-02-25</div>
     </header>
 
     <section class="site-block">
@@ -184,6 +196,14 @@
               <dt>URL</dt><dd><a href="https://www.kitara-sapporo.or.jp/event/event_detail.php?num=6898" target="_blank" rel="noopener">詳細ページ</a></dd>
             </dl>
             <div class="links">
+              <a class="btn gcal gcal-btn"
+                 href="#"
+                 data-title="庄司 紗矢香＆ジャンルカ・カシオーリ デュオ・リサイタル"
+                 data-date="2026-02-28"
+                 data-start="13:30"
+                 data-end="15:30"
+                 data-location="札幌コンサートホール Kitara 大ホール"
+                 data-url="https://www.kitara-sapporo.or.jp/event/event_detail.php?num=6898">Googleカレンダーに追加</a>
               <a class="btn" href="https://www.kitara-sapporo.or.jp/upimg/20260120161957-1.pdf" target="_blank" rel="noopener">チラシ表(PDF)</a>
               <a class="btn" href="https://www.kitara-sapporo.or.jp/upimg/20260120161957-2.pdf" target="_blank" rel="noopener">チラシ裏(PDF)</a>
             </div>
@@ -209,6 +229,14 @@
               <dt>URL</dt><dd><a href="https://www.kitara-sapporo.or.jp/event/event_detail.php?num=6906" target="_blank" rel="noopener">詳細ページ</a></dd>
             </dl>
             <div class="links">
+              <a class="btn gcal gcal-btn"
+                 href="#"
+                 data-title="宮の森アルテ・ムジクス 第34回定期演奏会"
+                 data-date="2026-02-28"
+                 data-start="18:00"
+                 data-end="20:30"
+                 data-location="札幌コンサートホール Kitara 小ホール"
+                 data-url="https://www.kitara-sapporo.or.jp/event/event_detail.php?num=6906">Googleカレンダーに追加</a>
               <a class="btn" href="https://www.kitara-sapporo.or.jp/upimg/20260120162058-1.pdf" target="_blank" rel="noopener">チラシ表(PDF)</a>
             </div>
           </div>
@@ -238,6 +266,14 @@
               <dt>URL</dt><dd><a href="https://www.sapporo-community-plaza.jp/event.php?num=4432" target="_blank" rel="noopener">詳細ページ</a></dd>
             </dl>
             <div class="links">
+              <a class="btn gcal gcal-btn"
+                 href="#"
+                 data-title="hitaruバレエプロジェクト「くるみ割り人形（全幕）」(2/28)"
+                 data-date="2026-02-28"
+                 data-start="17:00"
+                 data-end="19:30"
+                 data-location="札幌文化芸術劇場 hitaru"
+                 data-url="https://www.sapporo-community-plaza.jp/event.php?num=4432">Googleカレンダーに追加</a>
               <a class="btn" href="https://www.sapporo-community-plaza.jp/upimg/20251023113217-1.jpg" target="_blank" rel="noopener">チラシ表画像(外部)</a>
               <a class="btn" href="https://www.sapporo-community-plaza.jp/upimg/20260213213643-pdf1.pdf" target="_blank" rel="noopener">チラシPDF</a>
             </div>
@@ -270,9 +306,38 @@
       </div>
     </section>
 
-    <div class="note">
-      <strong>注記:</strong> Kitaraの「フライヤー」は詳細ページ上ではサムネイル画像 + PDF配布の構成でした。札幌市民交流プラザはチラシ表の画像を直接掲載。カナモトホールは対象行にフライヤー掲載なしでした。
-    </div>
   </div>
+  <script>
+    (function () {
+      function buildDateTime(dateStr, timeStr) {
+        return dateStr.replace(/-/g, "") + "T" + timeStr.replace(":", "") + "00";
+      }
+
+      document.querySelectorAll(".gcal-btn").forEach(function (btn) {
+        var date = btn.dataset.date;
+        var start = btn.dataset.start;
+        var end = btn.dataset.end;
+        if (!date || !start || !end) return;
+
+        var title = btn.dataset.title || "";
+        var location = btn.dataset.location || "";
+        var url = btn.dataset.url || "";
+        var details = url ? ("詳細: " + url) : "";
+
+        var params = new URLSearchParams({
+          action: "TEMPLATE",
+          text: title,
+          dates: buildDateTime(date, start) + "/" + buildDateTime(date, end),
+          ctz: "Asia/Tokyo",
+          location: location,
+          details: details
+        });
+
+        btn.href = "https://calendar.google.com/calendar/render?" + params.toString();
+        btn.target = "_blank";
+        btn.rel = "noopener";
+      });
+    })();
+  </script>
 </body>
 </html>
