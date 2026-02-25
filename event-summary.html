@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>抽出イベントまとめ</title>
+  <style>
+    :root {
+      --bg: #f4f1ea;
+      --paper: #fffdf8;
+      --ink: #202020;
+      --muted: #6d675d;
+      --line: #d8d1c4;
+      --accent: #8a5a00;
+      --accent-soft: #f4e6c8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 10%, #efe6d4 0, #efe6d400 35%),
+        radial-gradient(circle at 95% 0%, #eadfcb 0, #eadfcb00 28%),
+        var(--bg);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    header {
+      margin-bottom: 20px;
+      padding: 16px 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .site-block {
+      margin-top: 18px;
+    }
+    .site-block h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .flyer {
+      background: #f0ece4;
+      border-bottom: 1px solid var(--line);
+      min-height: 210px;
+      display: grid;
+      place-items: center;
+      padding: 10px;
+    }
+    .flyer img {
+      max-width: 100%;
+      max-height: 360px;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,.12);
+    }
+    .flyer.none {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .body {
+      padding: 14px;
+    }
+    .title {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .chip {
+      font-size: 12px;
+      color: #5a4930;
+      background: var(--accent-soft);
+      border: 1px solid #e5cfa0;
+      border-radius: 999px;
+      padding: 2px 8px;
+    }
+    dl {
+      margin: 0;
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 6px 8px;
+      font-size: 14px;
+    }
+    dt {
+      color: var(--muted);
+      margin: 0;
+    }
+    dd {
+      margin: 0;
+      word-break: break-word;
+    }
+    a {
+      color: #0f4a8a;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+    .links {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 10px;
+      background: #fff;
+      font-size: 13px;
+    }
+    .note {
+      margin-top: 18px;
+      padding: 12px 14px;
+      background: #fff;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 640px) {
+      dl { grid-template-columns: 78px 1fr; }
+      .flyer { min-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>抽出イベントまとめ</h1>
+      <div class="meta">この会話で抽出したイベント情報を1枚に整理（作成日: 2026-02-25）</div>
+    </header>
+
+    <section class="site-block">
+      <h2>札幌コンサートホール Kitara（2026年2月28日）</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="flyer">
+            <img src="https://www.kitara-sapporo.or.jp/upimg/20260120161957-09.jpg" alt="庄司 紗矢香＆ジャンルカ・カシオーリ デュオ・リサイタル フライヤーサムネイル">
+          </div>
+          <div class="body">
+            <h3 class="title">庄司 紗矢香＆ジャンルカ・カシオーリ デュオ・リサイタル</h3>
+            <div class="chips">
+              <span class="chip">Kitara</span>
+              <span class="chip">2026/02/28</span>
+            </div>
+            <dl>
+              <dt>日時</dt><dd>2026年2月28日(土曜日)</dd>
+              <dt>会場</dt><dd>大ホール</dd>
+              <dt>開場</dt><dd>13:00</dd>
+              <dt>開演</dt><dd>13:30</dd>
+              <dt>終演</dt><dd>15:30（予定）</dd>
+              <dt>URL</dt><dd><a href="https://www.kitara-sapporo.or.jp/event/event_detail.php?num=6898" target="_blank" rel="noopener">詳細ページ</a></dd>
+            </dl>
+            <div class="links">
+              <a class="btn" href="https://www.kitara-sapporo.or.jp/upimg/20260120161957-1.pdf" target="_blank" rel="noopener">チラシ表(PDF)</a>
+              <a class="btn" href="https://www.kitara-sapporo.or.jp/upimg/20260120161957-2.pdf" target="_blank" rel="noopener">チラシ裏(PDF)</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="flyer">
+            <img src="https://www.kitara-sapporo.or.jp/upimg/20260120162058-09.jpg" alt="宮の森アルテ・ムジクス 第34回定期演奏会 フライヤーサムネイル">
+          </div>
+          <div class="body">
+            <h3 class="title">宮の森アルテ・ムジクス 第34回定期演奏会</h3>
+            <div class="chips">
+              <span class="chip">Kitara</span>
+              <span class="chip">2026/02/28</span>
+            </div>
+            <dl>
+              <dt>日時</dt><dd>2026年2月28日(土曜日)</dd>
+              <dt>会場</dt><dd>小ホール</dd>
+              <dt>開場</dt><dd>17:30</dd>
+              <dt>開演</dt><dd>18:00</dd>
+              <dt>終演</dt><dd>20:30（予定）</dd>
+              <dt>URL</dt><dd><a href="https://www.kitara-sapporo.or.jp/event/event_detail.php?num=6906" target="_blank" rel="noopener">詳細ページ</a></dd>
+            </dl>
+            <div class="links">
+              <a class="btn" href="https://www.kitara-sapporo.or.jp/upimg/20260120162058-1.pdf" target="_blank" rel="noopener">チラシ表(PDF)</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="site-block">
+      <h2>札幌市民交流プラザ（2026年2月28日を含む公演）</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="flyer">
+            <img src="scp-4432-flyer-front.jpg" alt="hitaruバレエプロジェクト「くるみ割り人形（全幕）」チラシ表">
+          </div>
+          <div class="body">
+            <h3 class="title">hitaruバレエプロジェクト「くるみ割り人形（全幕）」</h3>
+            <div class="chips">
+              <span class="chip">札幌市民交流プラザ</span>
+              <span class="chip">2/28-3/1掲載</span>
+            </div>
+            <dl>
+              <dt>日時</dt><dd>2026年2月28日（土）、2026年3月1日（日）</dd>
+              <dt>会場</dt><dd>札幌文化芸術劇場 hitaru</dd>
+              <dt>開場</dt><dd>16:15</dd>
+              <dt>開演</dt><dd>17:00</dd>
+              <dt>終演</dt><dd>19:30（予定）</dd>
+              <dt>URL</dt><dd><a href="https://www.sapporo-community-plaza.jp/event.php?num=4432" target="_blank" rel="noopener">詳細ページ</a></dd>
+            </dl>
+            <div class="links">
+              <a class="btn" href="https://www.sapporo-community-plaza.jp/upimg/20251023113217-1.jpg" target="_blank" rel="noopener">チラシ表画像(外部)</a>
+              <a class="btn" href="https://www.sapporo-community-plaza.jp/upimg/20260213213643-pdf1.pdf" target="_blank" rel="noopener">チラシPDF</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="site-block">
+      <h2>カナモトホール（札幌市民ホール）2026年3月3日</h2>
+      <div class="grid">
+        <article class="card">
+          <div class="flyer none">フライヤーなし（掲載なし）</div>
+          <div class="body">
+            <h3 class="title">学校法人大原学園 卒業式</h3>
+            <div class="chips">
+              <span class="chip">カナモトホール</span>
+              <span class="chip">2026/03/03</span>
+            </div>
+            <dl>
+              <dt>日時</dt><dd>2026年3月3日（火）</dd>
+              <dt>会場</dt><dd>カナモトホール（札幌市民ホール）※個別会場欄の記載なし</dd>
+              <dt>開場</dt><dd>10:00</dd>
+              <dt>開演</dt><dd>10:30</dd>
+              <dt>終演</dt><dd>記載なし</dd>
+              <dt>URL</dt><dd><a href="https://www.sapporo-shiminhall.org/event/?ymd=2026/03/03#event2016-3" target="_blank" rel="noopener">当日一覧の該当行</a></dd>
+            </dl>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="note">
+      <strong>注記:</strong> Kitaraの「フライヤー」は詳細ページ上ではサムネイル画像 + PDF配布の構成でした。札幌市民交流プラザはチラシ表の画像を直接掲載。カナモトホールは対象行にフライヤー掲載なしでした。
+    </div>
+  </div>
+</body>
+</html>
