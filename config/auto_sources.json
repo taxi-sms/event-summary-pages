@@ -30,7 +30,7 @@
       "type": "mountalive",
       "enabled": true,
       "label": "Mount Alive",
-      "url": "https://www.mountalive.com/smp/"
+      "url": "https://www.mountalive.com/schedule/"
     },
     {
       "type": "wess",

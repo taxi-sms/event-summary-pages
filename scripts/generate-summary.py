@@ -526,11 +526,104 @@ def parse_mountalive_detail(detail_url: str) -> Dict[str, str]:
     return out
 
 
+def _mountalive_event_from_detail(
+    date_obj: dt.date,
+    label: str,
+    detail_url: str,
+    title_raw: str,
+    venue_hint: str,
+    flyer_hint: str,
+    detail_cache: Dict[str, Dict[str, str]],
+) -> EventItem:
+    if detail_url not in detail_cache:
+        try:
+            detail_cache[detail_url] = parse_mountalive_detail(detail_url)
+        except Exception:
+            detail_cache[detail_url] = {"open_time": "", "start_time": "", "date_text": "", "venue": "", "flyer_image": ""}
+    dd = detail_cache[detail_url]
+    title = collapse_ws(title_raw) or "公演名不明"
+    venue = dd.get("venue") or collapse_ws(venue_hint) or "記載なし"
+    flyer = dd.get("flyer_image") or flyer_hint or ""
+    return EventItem(
+        site=label,
+        title=title,
+        date_iso=date_obj.isoformat(),
+        date_text=dd.get("date_text") or jp_date_display(date_obj),
+        venue=venue,
+        open_time=dd.get("open_time") or "記載なし",
+        start_time=dd.get("start_time") or "記載なし",
+        end_time="記載なし",
+        url=detail_url,
+        flyer_image=flyer,
+        flyer_alt=f"{title} フライヤー",
+        flyer_missing="フライヤーなし（掲載なし）" if not flyer else "",
+    )
+
+
+def scrape_mountalive_html(date_obj: dt.date, label: str, detail_cache: Dict[str, Dict[str, str]]) -> List[EventItem]:
+    page_url = "https://www.mountalive.com/schedule/"
+    page = fetch_text(page_url)
+    items: List[EventItem] = []
+    seen_urls: set[str] = set()
+
+    for block in re.findall(r"<div class=['\"]title['\"]>(.*?)</div>", page, re.S | re.I):
+        if "vevent" not in block or "value-title" not in block:
+            continue
+        dt_m = re.search(r"class=['\"]value-title['\"][^>]*title=['\"](\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})", block, re.I)
+        if not dt_m:
+            continue
+        try:
+            item_date = dt.date.fromisoformat(dt_m.group(1))
+        except ValueError:
+            continue
+        if item_date != date_obj:
+            continue
+
+        href_m = re.search(r"<a[^>]+href=['\"]([^'\"]*more\.php\?no=\d+)[^'\"]*['\"]", block, re.I)
+        summary_m = re.search(r"<span class=['\"]summary['\"]>(.*?)</span>", block, re.S | re.I)
+        title_attr_m = re.search(r"<a[^>]+title=['\"](.*?)['\"]", block, re.S | re.I)
+        hall_m = re.search(r"class=['\"][^'\"]*\bhall\b[^'\"]*['\"][^>]*title=['\"](.*?)['\"]", block, re.S | re.I)
+
+        if not href_m:
+            continue
+        detail_url = ensure_abs(page_url, href_m.group(1))
+        if detail_url in seen_urls:
+            continue
+        seen_urls.add(detail_url)
+
+        title_raw = strip_tags(summary_m.group(1)) if summary_m else strip_tags(title_attr_m.group(1) if title_attr_m else "")
+        venue_hint = strip_tags(hall_m.group(1)) if hall_m else ""
+
+        items.append(
+            _mountalive_event_from_detail(
+                date_obj=date_obj,
+                label=label,
+                detail_url=detail_url,
+                title_raw=title_raw,
+                venue_hint=venue_hint,
+                flyer_hint="",
+                detail_cache=detail_cache,
+            )
+        )
+    return items
+
+
 def scrape_mountalive(date_obj: dt.date, label: str) -> SiteResult:
     result = SiteResult(key="mountalive", label=label, date_obj=date_obj)
+    detail_cache: Dict[str, Dict[str, str]] = {}
+    seen_urls: set[str] = set()
+
+    # Primary source: desktop schedule page (contains current listings that can lag in schedule.xml).
+    try:
+        for ev in scrape_mountalive_html(date_obj, label, detail_cache):
+            result.events.append(ev)
+            seen_urls.add(ev.url)
+    except Exception:
+        pass
+
+    # Fallback / supplement: legacy RSS(XML)
     xml_bytes = fetch_bytes("http://www.mountalive.com/schedule/schedule.xml")
     xml_text = decode_bytes(xml_bytes, ["euc_jp", "cp932", "utf-8"])
-    detail_cache: Dict[str, Dict[str, str]] = {}
 
     for item_m in re.finditer(r"<item>(.*?)</item>", xml_text, re.S | re.I):
         item = item_m.group(1)
@@ -546,13 +639,9 @@ def scrape_mountalive(date_obj: dt.date, label: str) -> SiteResult:
         item_date = dt.date(int(d_m.group(1)), int(d_m.group(2)), int(d_m.group(3)))
         if item_date != date_obj:
             continue
-        detail_url = link_m.group(1).strip()
-        if detail_url not in detail_cache:
-            try:
-                detail_cache[detail_url] = parse_mountalive_detail(ensure_abs("http://www.mountalive.com/schedule/", detail_url))
-            except Exception:
-                detail_cache[detail_url] = {"open_time": "", "start_time": "", "date_text": "", "venue": "", "flyer_image": ""}
-        dd = detail_cache[detail_url]
+        detail_url = ensure_abs("http://www.mountalive.com/schedule/", link_m.group(1).strip())
+        if detail_url in seen_urls:
+            continue
         desc_text = strip_tags(desc_html)
         desc_lines = [ln for ln in desc_text.split("\n") if ln]
         desc_title = ""
@@ -561,25 +650,21 @@ def scrape_mountalive(date_obj: dt.date, label: str) -> SiteResult:
                 desc_title = ln
                 break
         venue_m = re.search(r"会場：(.+)", desc_text)
-        venue = dd.get("venue") or (venue_m.group(1).strip() if venue_m else "記載なし")
+        venue = venue_m.group(1).strip() if venue_m else ""
         flyer_m = re.search(r"<img src='([^']+)'", desc_html, re.I)
-        flyer = dd.get("flyer_image") or (ensure_abs(detail_url, flyer_m.group(1)) if flyer_m else "")
+        flyer = ensure_abs(detail_url, flyer_m.group(1)) if flyer_m else ""
         result.events.append(
-            EventItem(
-                site=label,
-                title=desc_title or title_raw or "公演名不明",
-                date_iso=date_obj.isoformat(),
-                date_text=dd.get("date_text") or jp_date_display(date_obj),
-                venue=venue,
-                open_time=dd.get("open_time") or "記載なし",
-                start_time=dd.get("start_time") or "記載なし",
-                end_time="記載なし",
-                url=ensure_abs("http://www.mountalive.com/schedule/", detail_url),
-                flyer_image=flyer,
-                flyer_alt=f"{(desc_title or title_raw or '公演')} フライヤー",
-                flyer_missing="フライヤーなし（掲載なし）" if not flyer else "",
+            _mountalive_event_from_detail(
+                date_obj=date_obj,
+                label=label,
+                detail_url=detail_url,
+                title_raw=(desc_title or title_raw or "公演名不明"),
+                venue_hint=venue,
+                flyer_hint=flyer,
+                detail_cache=detail_cache,
             )
         )
+        seen_urls.add(detail_url)
 
     if not result.events:
         result.note = "該当イベントなし"
