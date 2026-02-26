@@ -1054,10 +1054,9 @@ def render_from_template(template_path: Path, out_path: Path, date_obj: dt.date,
     template = template_path.read_text(encoding="utf-8")
     template = re.sub(r"作成日\s*:\s*YYYY-MM-DD", f"作成日 : {date_obj.isoformat()}", template, count=1)
     ordered_sites = sorted(site_results, key=site_order_key)
-    # Avoid duplicate cards: event cards are shown in the global opening-time list.
-    # Site blocks are kept only for no-event / warning visibility.
-    status_only_sites = [site for site in ordered_sites if not site.events]
-    blocks = "\n\n".join([render_global_block(date_obj, ordered_sites)] + [render_site_block(site) for site in status_only_sites])
+    # Event cards are shown only in the global opening-time list.
+    # Placeholder "no event" cards are hidden to keep the page compact.
+    blocks = render_global_block(date_obj, ordered_sites)
     template = re.sub(r"<!-- SITE BLOCK START -->.*?<!-- SITE BLOCK END -->", blocks, template, count=1, flags=re.S)
     out_path.write_text(template, encoding="utf-8")
 
