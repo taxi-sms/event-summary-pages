@@ -18,7 +18,8 @@ if [[ "$LINE_AUTO_SEND" != "1" ]]; then
 fi
 
 TOKEN="${LINE_CHANNEL_ACCESS_TOKEN:-}"
-TO="${LINE_TO_USER_ID:-}"
+TO_USER="${LINE_TO_USER_ID:-}"
+TO_GROUP="${LINE_TO_GROUP_ID:-}"
 USE_BROADCAST="${LINE_BROADCAST:-0}"
 URL="${1:-https://taxi-sms.github.io/event-summary-pages/?v=$(date +%Y%m%d-%H%M%S)}"
 LABEL="${2:-イベントまとめを更新しました}"
@@ -29,17 +30,29 @@ if [[ -z "$TOKEN" ]]; then
   exit 1
 fi
 
-if [[ "$USE_BROADCAST" != "1" && -z "$TO" ]]; then
-  echo "LINE送信失敗: LINE_TO_USER_ID が未設定です（または LINE_BROADCAST=1 を使用）。"
-  exit 1
-fi
+# Priority: broadcast > group push > user push
+TARGET_TYPE=""
+TARGET_ID=""
+ENDPOINT=""
+PAYLOAD=""
 
 if [[ "$USE_BROADCAST" == "1" ]]; then
+  TARGET_TYPE="broadcast"
   ENDPOINT="https://api.line.me/v2/bot/message/broadcast"
   PAYLOAD=$(printf '{"messages":[{"type":"text","text":"%s"}]}' "$TEXT")
-else
+elif [[ -n "$TO_GROUP" ]]; then
+  TARGET_TYPE="group"
+  TARGET_ID="$TO_GROUP"
   ENDPOINT="https://api.line.me/v2/bot/message/push"
-  PAYLOAD=$(printf '{"to":"%s","messages":[{"type":"text","text":"%s"}]}' "$TO" "$TEXT")
+  PAYLOAD=$(printf '{"to":"%s","messages":[{"type":"text","text":"%s"}]}' "$TARGET_ID" "$TEXT")
+elif [[ -n "$TO_USER" ]]; then
+  TARGET_TYPE="user"
+  TARGET_ID="$TO_USER"
+  ENDPOINT="https://api.line.me/v2/bot/message/push"
+  PAYLOAD=$(printf '{"to":"%s","messages":[{"type":"text","text":"%s"}]}' "$TARGET_ID" "$TEXT")
+else
+  echo "LINE送信失敗: 宛先未設定です。LINE_TO_GROUP_ID / LINE_TO_USER_ID を設定するか LINE_BROADCAST=1 を使用してください。"
+  exit 1
 fi
 
 TMP_BODY="$(mktemp)"
@@ -50,12 +63,16 @@ HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w '%{http_code}' \
   --data "$PAYLOAD")
 
 if [[ "$HTTP_CODE" =~ ^2 ]]; then
-  echo "LINE送信成功: $URL"
+  if [[ "$TARGET_TYPE" == "broadcast" ]]; then
+    echo "LINE送信成功 (broadcast): $URL"
+  else
+    echo "LINE送信成功 (${TARGET_TYPE}): $URL"
+  fi
   rm -f "$TMP_BODY"
   exit 0
 fi
 
-echo "LINE送信失敗 (HTTP $HTTP_CODE)"
+echo "LINE送信失敗 (HTTP $HTTP_CODE, target=${TARGET_TYPE:-unknown})"
 cat "$TMP_BODY"
 rm -f "$TMP_BODY"
 exit 1

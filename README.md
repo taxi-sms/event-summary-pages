@@ -39,6 +39,8 @@ GitHub Pages で公開するイベントまとめページ用リポジトリで�
 - その後、`event-summary.html` を編集してください
 
 ## LINE自動送信（任意）
+
+※送信先は `groupId` / `userId` / `broadcast` に対応（優先順位: `broadcast > group > user`）
 ### 1. 設定ファイル作成
 ```bash
 cp .env.line.example .env.line
@@ -47,6 +49,7 @@ cp .env.line.example .env.line
 ### 2. `.env.line` を編集
 - `LINE_AUTO_SEND=1`
 - `LINE_CHANNEL_ACCESS_TOKEN=...`
+- `LINE_TO_GROUP_ID=C...`（グループに送る場合。おすすめ）
 - `LINE_TO_USER_ID=U...`（特定相手に送る場合）
 - または `LINE_BROADCAST=1`（公式アカウント友だち全体に送る場合）
 
