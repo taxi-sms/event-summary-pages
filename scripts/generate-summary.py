@@ -661,6 +661,18 @@ def scrape_kyobun(date_obj: dt.date, label: str) -> SiteResult:
                 flyer_missing="フライヤーなし（掲載なし）" if not flyer else "",
             )
         )
+    # 教育文化会館は同日に「催事あり」の汎用行と具体的公演が混在することがある。
+    # 具体的公演が1件でもある場合は、汎用プレースホルダ行を表示しない。
+    generic_titles = {"催事あり"}
+    has_specific = any((ev.title or "").strip() not in generic_titles for ev in result.events)
+    if has_specific:
+        filtered: List[EventItem] = []
+        for ev in result.events:
+            is_generic = (ev.title or "").strip() in generic_titles
+            if is_generic and ev.open_time == "記載なし" and ev.start_time == "記載なし":
+                continue
+            filtered.append(ev)
+        result.events = filtered
     if not result.events:
         result.note = "該当イベントなし"
     return result
