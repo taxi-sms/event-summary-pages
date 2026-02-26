@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Optional hook executed by scripts/auto-publish.sh before publishing.
+# Put your daily extraction/update logic here if you later automate scraping.
+#
+# Example:
+#   # update event-summary.html here
+#   echo "prepublish hook ran at $(date)" >&2
+
+exit 0
