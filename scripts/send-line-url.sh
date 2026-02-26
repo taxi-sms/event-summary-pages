@@ -107,7 +107,7 @@ elif [[ -n "$TO_GROUPS_RAW" ]]; then
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\r'/}"
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\n'/,}"
   echo "LINE複数グループ送信: 入力文字数=${#TO_GROUPS_RAW}"
-  IFS=',' read -r -a GROUPS <<< "$TO_GROUPS_RAW"
+  IFS=',' read -r -a GROUPS <<< "$TO_GROUPS_RAW" || true
   SENT=0
   FAIL=0
   VALID=0
