@@ -93,9 +93,14 @@ else
 fi
 
 if [[ -x "./scripts/send-line-url.sh" ]]; then
-  if ! ./scripts/send-line-url.sh "$CACHE_BUST_URL" "イベントまとめを更新しました"; then
+  LINE_SEND_OUTPUT=""
+  if ! LINE_SEND_OUTPUT="$(./scripts/send-line-url.sh "$CACHE_BUST_URL" "イベントまとめを更新しました" 2>&1)"; then
+    [[ -n "$LINE_SEND_OUTPUT" ]] && echo "$LINE_SEND_OUTPUT"
     echo "LINE送信は失敗しました（公開は完了しています）。"
-  elif [[ "$PAGES_READY" -ne 1 ]]; then
-    echo "LINE送信は実施しましたが、Pages反映確認は未完了です。"
+  else
+    [[ -n "$LINE_SEND_OUTPUT" ]] && echo "$LINE_SEND_OUTPUT"
+    if [[ "$PAGES_READY" -ne 1 ]]; then
+      echo "LINE送信は実施しましたが、Pages反映確認は未完了です。"
+    fi
   fi
 fi
