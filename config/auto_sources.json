@@ -22,55 +22,55 @@
 
     {
       "type": "musicfun",
-      "enabled": false,
+      "enabled": true,
       "label": "MUSIC FUN",
       "url": "https://musicfun.co.jp/"
     },
     {
       "type": "mountalive",
-      "enabled": false,
+      "enabled": true,
       "label": "Mount Alive",
       "url": "https://www.mountalive.com/smp/"
     },
     {
       "type": "wess",
-      "enabled": false,
+      "enabled": true,
       "label": "WESS",
       "url": "https://wess.jp/"
     },
     {
       "type": "kyobun",
-      "enabled": false,
+      "enabled": true,
       "label": "札幌市教育文化会館",
       "url": "https://www.kyobun.org/event_schedule.html"
     },
     {
       "type": "sapporo_dome",
-      "enabled": false,
+      "enabled": true,
       "label": "大和ハウス プレミストドーム（札幌ドーム）",
       "url": "https://www.sapporo-dome.co.jp/eventlist/"
     },
     {
       "type": "sora_scc",
-      "enabled": false,
+      "enabled": true,
       "label": "札幌市生涯学習センター ちえりあ（SORA-SCC）",
       "url": "https://www.sora-scc.jp/event/"
     },
     {
       "type": "axes",
-      "enabled": false,
+      "enabled": true,
       "label": "AXES（axes.or.jp）",
       "url": "https://www.axes.or.jp/index.php"
     },
     {
       "type": "makomanai_icearena",
-      "enabled": false,
+      "enabled": true,
       "label": "真駒内セキスイハイムアイスアリーナ",
       "url": "http://www.makomanai.com/icearena/event"
     },
     {
       "type": "zepp_sapporo",
-      "enabled": false,
+      "enabled": true,
       "label": "Zepp Sapporo",
       "url": "https://www.zepp.co.jp/hall/sapporo/schedule/"
     }
