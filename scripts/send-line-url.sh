@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+
+on_line_err() {
+  local ec="$1"
+  local line_no="$2"
+  echo "LINE送信スクリプト異常終了: status=${ec}, line=${line_no}"
+}
+trap 'on_line_err "$?" "$LINENO"' ERR
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT_DIR"
@@ -41,12 +48,15 @@ send_push() {
   payload=$(printf '{"to":"%s","messages":[{"type":"text","text":"%s"}]}' "$target_id" "$TEXT")
   tmp_body="$(mktemp)"
   tmp_err="$(mktemp)"
-  if ! http_code=$(curl -sS -o "$tmp_body" -w '%{http_code}' \
+  set +e
+  http_code=$(curl -sS -o "$tmp_body" -w '%{http_code}' \
     -X POST "$endpoint" \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer $TOKEN" \
-    --data "$payload" 2>"$tmp_err"); then
-    curl_exit=$?
+    --data "$payload" 2>"$tmp_err")
+  curl_exit=$?
+  set -e
+  if [[ "$curl_exit" -ne 0 ]]; then
     echo "LINE送信失敗 (curl exit ${curl_exit}, target=${target_type}, id=${target_id})"
     [[ -s "$tmp_err" ]] && cat "$tmp_err"
     rm -f "$tmp_body" "$tmp_err"
@@ -67,12 +77,15 @@ send_push() {
 if [[ "$USE_BROADCAST" == "1" ]]; then
   TMP_BODY="$(mktemp)"
   TMP_ERR="$(mktemp)"
-  if ! HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w '%{http_code}' \
+  set +e
+  HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w '%{http_code}' \
     -X POST "https://api.line.me/v2/bot/message/broadcast" \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer $TOKEN" \
-    --data "$(printf '{"messages":[{"type":"text","text":"%s"}]}' "$TEXT")" 2>"$TMP_ERR"); then
-    CURL_EXIT=$?
+    --data "$(printf '{"messages":[{"type":"text","text":"%s"}]}' "$TEXT")" 2>"$TMP_ERR")
+  CURL_EXIT=$?
+  set -e
+  if [[ "$CURL_EXIT" -ne 0 ]]; then
     echo "LINE送信失敗 (curl exit $CURL_EXIT, target=broadcast)"
     [[ -s "$TMP_ERR" ]] && cat "$TMP_ERR"
     rm -f "$TMP_BODY" "$TMP_ERR"
@@ -93,6 +106,7 @@ elif [[ -n "$TO_GROUPS_RAW" ]]; then
   TO_GROUPS_RAW="$(printf '%s' "$TO_GROUPS_RAW" | tr '，；;' ',,,')"
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\r'/}"
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\n'/,}"
+  echo "LINE複数グループ送信: 入力文字数=${#TO_GROUPS_RAW}"
   IFS=',' read -r -a GROUPS <<< "$TO_GROUPS_RAW"
   SENT=0
   FAIL=0
@@ -101,6 +115,7 @@ elif [[ -n "$TO_GROUPS_RAW" ]]; then
     gid="$(printf '%s' "$gid" | tr -d '[:space:]\"')"
     [[ -z "$gid" ]] && continue
     VALID=$((VALID + 1))
+    echo "LINE複数グループ送信: target${VALID}=${gid:0:6}...(${#gid} chars)"
     if send_push "group" "$gid"; then
       SENT=$((SENT + 1))
     else
