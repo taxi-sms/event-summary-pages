@@ -1,0 +1,78 @@
+{
+  "sources": [
+    {
+      "type": "kitara",
+      "enabled": true,
+      "label": "札幌コンサートホール Kitara",
+      "url": "https://www.kitara-sapporo.or.jp/"
+    },
+    {
+      "type": "sapporo_community_plaza",
+      "enabled": true,
+      "label": "札幌市民交流プラザ",
+      "url": "https://www.sapporo-community-plaza.jp/event.php?kind=2",
+      "kind": 2
+    },
+    {
+      "type": "sapporo_shiminhall",
+      "enabled": true,
+      "label": "カナモトホール（札幌市民ホール）",
+      "url": "https://www.sapporo-shiminhall.org/"
+    },
+
+    {
+      "type": "musicfun",
+      "enabled": false,
+      "label": "MUSIC FUN",
+      "url": "https://musicfun.co.jp/"
+    },
+    {
+      "type": "mountalive",
+      "enabled": false,
+      "label": "Mount Alive",
+      "url": "https://www.mountalive.com/smp/"
+    },
+    {
+      "type": "wess",
+      "enabled": false,
+      "label": "WESS",
+      "url": "https://wess.jp/"
+    },
+    {
+      "type": "kyobun",
+      "enabled": false,
+      "label": "札幌市教育文化会館",
+      "url": "https://www.kyobun.org/event_schedule.html"
+    },
+    {
+      "type": "sapporo_dome",
+      "enabled": false,
+      "label": "大和ハウス プレミストドーム（札幌ドーム）",
+      "url": "https://www.sapporo-dome.co.jp/eventlist/"
+    },
+    {
+      "type": "sora_scc",
+      "enabled": false,
+      "label": "札幌市生涯学習センター ちえりあ（SORA-SCC）",
+      "url": "https://www.sora-scc.jp/event/"
+    },
+    {
+      "type": "axes",
+      "enabled": false,
+      "label": "AXES（axes.or.jp）",
+      "url": "https://www.axes.or.jp/index.php"
+    },
+    {
+      "type": "makomanai_icearena",
+      "enabled": false,
+      "label": "真駒内セキスイハイムアイスアリーナ",
+      "url": "http://www.makomanai.com/icearena/event"
+    },
+    {
+      "type": "zepp_sapporo",
+      "enabled": false,
+      "label": "Zepp Sapporo",
+      "url": "https://www.zepp.co.jp/hall/sapporo/schedule/"
+    }
+  ]
+}
