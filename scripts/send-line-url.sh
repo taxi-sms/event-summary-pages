@@ -109,11 +109,11 @@ elif [[ -n "$TO_GROUPS_RAW" ]]; then
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\r'/}"
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\n'/,}"
   echo "LINE複数グループ送信: 入力文字数=${#TO_GROUPS_RAW}"
-  IFS=',' read -r -a GROUPS <<< "$TO_GROUPS_RAW" || true
+  IFS=',' read -r -a TARGET_GROUP_IDS <<< "$TO_GROUPS_RAW" || true
   SENT=0
   FAIL=0
   VALID=0
-  for gid in "${GROUPS[@]}"; do
+  for gid in "${TARGET_GROUP_IDS[@]}"; do
     gid="$(printf '%s' "$gid" | tr -d '[:space:]\"')"
     [[ -z "$gid" ]] && continue
     VALID=$((VALID + 1))
