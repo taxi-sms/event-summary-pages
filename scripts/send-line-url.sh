@@ -37,40 +37,56 @@ send_push() {
   local target_id="$2"
   local endpoint="https://api.line.me/v2/bot/message/push"
   local payload
-  local tmp_body http_code
+  local tmp_body tmp_err http_code curl_exit
   payload=$(printf '{"to":"%s","messages":[{"type":"text","text":"%s"}]}' "$target_id" "$TEXT")
   tmp_body="$(mktemp)"
-  http_code=$(curl -sS -o "$tmp_body" -w '%{http_code}' \
+  tmp_err="$(mktemp)"
+  if ! http_code=$(curl -sS -o "$tmp_body" -w '%{http_code}' \
     -X POST "$endpoint" \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer $TOKEN" \
-    --data "$payload")
+    --data "$payload" 2>"$tmp_err"); then
+    curl_exit=$?
+    echo "LINE送信失敗 (curl exit ${curl_exit}, target=${target_type}, id=${target_id})"
+    [[ -s "$tmp_err" ]] && cat "$tmp_err"
+    rm -f "$tmp_body" "$tmp_err"
+    return 1
+  fi
   if [[ "$http_code" =~ ^2 ]]; then
     echo "LINE送信成功 (${target_type}): $URL -> ${target_id}"
-    rm -f "$tmp_body"
+    rm -f "$tmp_body" "$tmp_err"
     return 0
   fi
   echo "LINE送信失敗 (HTTP $http_code, target=${target_type}, id=${target_id})"
   cat "$tmp_body"
-  rm -f "$tmp_body"
+  [[ -s "$tmp_err" ]] && cat "$tmp_err"
+  rm -f "$tmp_body" "$tmp_err"
   return 1
 }
 
 if [[ "$USE_BROADCAST" == "1" ]]; then
   TMP_BODY="$(mktemp)"
-  HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w '%{http_code}' \
+  TMP_ERR="$(mktemp)"
+  if ! HTTP_CODE=$(curl -sS -o "$TMP_BODY" -w '%{http_code}' \
     -X POST "https://api.line.me/v2/bot/message/broadcast" \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer $TOKEN" \
-    --data "$(printf '{"messages":[{"type":"text","text":"%s"}]}' "$TEXT")")
+    --data "$(printf '{"messages":[{"type":"text","text":"%s"}]}' "$TEXT")" 2>"$TMP_ERR"); then
+    CURL_EXIT=$?
+    echo "LINE送信失敗 (curl exit $CURL_EXIT, target=broadcast)"
+    [[ -s "$TMP_ERR" ]] && cat "$TMP_ERR"
+    rm -f "$TMP_BODY" "$TMP_ERR"
+    exit 1
+  fi
   if [[ "$HTTP_CODE" =~ ^2 ]]; then
     echo "LINE送信成功 (broadcast): $URL"
-    rm -f "$TMP_BODY"
+    rm -f "$TMP_BODY" "$TMP_ERR"
     exit 0
   fi
   echo "LINE送信失敗 (HTTP $HTTP_CODE, target=broadcast)"
   cat "$TMP_BODY"
-  rm -f "$TMP_BODY"
+  [[ -s "$TMP_ERR" ]] && cat "$TMP_ERR"
+  rm -f "$TMP_BODY" "$TMP_ERR"
   exit 1
 elif [[ -n "$TO_GROUPS_RAW" ]]; then
   # Accept comma/newline/full-width comma/semicolon separated values from env/Secrets.
