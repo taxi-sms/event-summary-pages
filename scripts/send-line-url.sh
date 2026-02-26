@@ -73,19 +73,25 @@ if [[ "$USE_BROADCAST" == "1" ]]; then
   rm -f "$TMP_BODY"
   exit 1
 elif [[ -n "$TO_GROUPS_RAW" ]]; then
+  # Accept comma/newline/full-width comma/semicolon separated values from env/Secrets.
+  TO_GROUPS_RAW="$(printf '%s' "$TO_GROUPS_RAW" | tr '，；;' ',,,')"
+  TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\r'/}"
+  TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\n'/,}"
   IFS=',' read -r -a GROUPS <<< "$TO_GROUPS_RAW"
   SENT=0
   FAIL=0
+  VALID=0
   for gid in "${GROUPS[@]}"; do
-    gid="$(printf '%s' "$gid" | tr -d '[:space:]')"
+    gid="$(printf '%s' "$gid" | tr -d '[:space:]\"')"
     [[ -z "$gid" ]] && continue
+    VALID=$((VALID + 1))
     if send_push "group" "$gid"; then
       SENT=$((SENT + 1))
     else
       FAIL=$((FAIL + 1))
     fi
   done
-  if (( SENT == 0 && FAIL == 0 )); then
+  if (( VALID == 0 )); then
     echo "LINE送信失敗: LINE_TO_GROUP_IDS に有効なIDがありません。"
     exit 1
   fi
