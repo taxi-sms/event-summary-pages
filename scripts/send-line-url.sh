@@ -103,7 +103,9 @@ if [[ "$USE_BROADCAST" == "1" ]]; then
   exit 1
 elif [[ -n "$TO_GROUPS_RAW" ]]; then
   # Accept comma/newline/full-width comma/semicolon separated values from env/Secrets.
-  TO_GROUPS_RAW="$(printf '%s' "$TO_GROUPS_RAW" | tr '，；;' ',,,')"
+  TO_GROUPS_RAW="${TO_GROUPS_RAW//；/,}"
+  TO_GROUPS_RAW="${TO_GROUPS_RAW//，/,}"
+  TO_GROUPS_RAW="${TO_GROUPS_RAW//;/,}"
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\r'/}"
   TO_GROUPS_RAW="${TO_GROUPS_RAW//$'\n'/,}"
   echo "LINE複数グループ送信: 入力文字数=${#TO_GROUPS_RAW}"
