@@ -1,0 +1,62 @@
+name: Auto Publish Event Summary
+
+on:
+  schedule:
+    # 06:30 JST = 21:30 UTC (previous day)
+    - cron: "30 21 * * *"
+  workflow_dispatch:
+    inputs:
+      target_date:
+        description: "Target date in YYYY-MM-DD (optional, JST)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: event-summary-auto-publish
+  cancel-in-progress: false
+
+jobs:
+  auto-publish:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Tokyo
+      PREPUBLISH_DATE: ${{ inputs.target_date }}
+      LINE_AUTO_SEND: "1"
+      LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+      LINE_TO_GROUP_ID: ${{ secrets.LINE_TO_GROUP_ID }}
+      LINE_TO_USER_ID: ${{ secrets.LINE_TO_USER_ID }}
+      LINE_BROADCAST: ${{ secrets.LINE_BROADCAST }}
+      PAGES_WAIT_TIMEOUT_SEC: "240"
+      PAGES_WAIT_INTERVAL_SEC: "5"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Ensure scripts are executable
+        run: chmod +x scripts/*.sh
+
+      - name: Run auto publish (scrape -> generate -> push -> LINE)
+        run: ./scripts/auto-publish.sh
+
+      - name: Show latest log tail
+        if: always()
+        run: |
+          if [[ -f logs/auto-publish.log ]]; then
+            tail -n 200 logs/auto-publish.log
+          fi
